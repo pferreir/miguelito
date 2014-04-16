@@ -1,9 +1,9 @@
 package org.indico_software.games.miguelito;
 
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.*;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.utils.TimeUtils;
@@ -13,6 +13,8 @@ import com.badlogic.gdx.utils.TimeUtils;
  */
 public class SplashScreen implements Screen {
 
+    private final BitmapFont font;
+    MiguelitoSingapore game;
     SpriteBatch batch;
     Texture fg_img;
     Texture bg_img;
@@ -21,10 +23,20 @@ public class SplashScreen implements Screen {
     Sprite bg_sprite;
 
     float scale;
+    boolean keep_running;
     long start_t;
 
-    public SplashScreen() {
+    InputProcessor anyKeyProcessor;
+
+    public SplashScreen(MiguelitoSingapore game) {
+        this.game = game;
+
+        keep_running = true;
         batch = new SpriteBatch();
+
+        font = new BitmapFont(Gdx.files.internal("fonts/8bitwonder-gradient.fnt"),
+                Gdx.files.internal("fonts/8bitwonder-gradient.png"), false);
+
         bg_img = new Texture(Gdx.files.internal("singapore_splash.png"));
         fg_img = new Texture(Gdx.files.internal("miguelito_splash.png"));
 
@@ -34,6 +46,14 @@ public class SplashScreen implements Screen {
         scale = 1.0f;
 
         start_t = TimeUtils.nanoTime();
+
+        anyKeyProcessor = new InputAdapter() {
+            @Override
+            public boolean keyDown(int keycode) {
+                keep_running = false;
+                return false;
+            }
+        };
     }
 
     @Override
@@ -52,7 +72,14 @@ public class SplashScreen implements Screen {
         batch.begin();
         bg_sprite.draw(batch);
         fg_sprite.draw(batch);
+
+        font.draw(batch, "PRESS ANY KEY", 120, 40);
+
         batch.end();
+
+        if (!keep_running) {
+            game.setScreen(game.gameScreen);
+        }
     }
 
     @Override
@@ -62,12 +89,12 @@ public class SplashScreen implements Screen {
 
     @Override
     public void show() {
-
+        Gdx.input.setInputProcessor(anyKeyProcessor);
     }
 
     @Override
     public void hide() {
-
+        Gdx.input.setInputProcessor(null);
     }
 
     @Override

@@ -4,10 +4,18 @@ import com.badlogic.gdx.Game;
 
 public class MiguelitoSingapore extends Game {
 
-	
-	@Override
+    public SplashScreen splashScreen;
+    public GameScreen gameScreen;
+
+    public MiguelitoSingapore() {
+    }
+
+    @Override
 	public void create () {
-        this.setScreen(new SplashScreen());
+        splashScreen = new SplashScreen(this);
+        gameScreen = new GameScreen(this);
+
+        this.setScreen(splashScreen);
 	}
 
 	@Override
