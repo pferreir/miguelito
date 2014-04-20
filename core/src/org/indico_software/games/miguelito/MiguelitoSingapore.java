@@ -6,6 +6,7 @@ public class MiguelitoSingapore extends Game {
 
     public SplashScreen splashScreen;
     public GameScreen gameScreen;
+    public GameCredits gameCredits;
 
     public MiguelitoSingapore() {
     }
@@ -14,6 +15,7 @@ public class MiguelitoSingapore extends Game {
 	public void create () {
         splashScreen = new SplashScreen(this);
         gameScreen = new GameScreen(this);
+        gameCredits = new GameCredits(this);
 
         this.setScreen(splashScreen);
 	}
