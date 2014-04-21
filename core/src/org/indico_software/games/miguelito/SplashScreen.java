@@ -1,6 +1,7 @@
 package org.indico_software.games.miguelito;
 
 import com.badlogic.gdx.*;
+import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
@@ -18,6 +19,7 @@ public class SplashScreen implements Screen {
     SpriteBatch batch;
     Texture fg_img;
     Texture bg_img;
+    Music splash_music;
 
     Sprite fg_sprite;
     Sprite bg_sprite;
@@ -39,6 +41,8 @@ public class SplashScreen implements Screen {
 
         bg_img = new Texture(Gdx.files.internal("singapore_splash.png"));
         fg_img = new Texture(Gdx.files.internal("miguelito_splash.png"));
+
+        splash_music = Gdx.audio.newMusic(Gdx.files.internal("mp3/miguelito-splash.mp3"));
 
         fg_sprite = new Sprite(fg_img);
         bg_sprite = new Sprite(bg_img);
@@ -89,12 +93,15 @@ public class SplashScreen implements Screen {
 
     @Override
     public void show() {
+        splash_music.play();
+        splash_music.setLooping(true);
         Gdx.input.setInputProcessor(anyKeyProcessor);
     }
 
     @Override
     public void hide() {
         Gdx.input.setInputProcessor(null);
+        splash_music.stop();
     }
 
     @Override
@@ -109,6 +116,6 @@ public class SplashScreen implements Screen {
 
     @Override
     public void dispose() {
-
+        splash_music.dispose();
     }
 }

@@ -2,6 +2,7 @@ package org.indico_software.games.miguelito;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -12,6 +13,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 public class GameScreen implements Screen {
 
     MiguelitoSingapore game;
+    Music game_music;
     SpriteBatch batch;
     Sprite sprite;
     Texture spriteTexture;
@@ -22,6 +24,7 @@ public class GameScreen implements Screen {
     public GameScreen(MiguelitoSingapore game) {
         this.game = game;
         batch = new SpriteBatch();
+        game_music = Gdx.audio.newMusic(Gdx.files.internal("mp3/miguelito-ingame.mp3"));
 
         spriteTexture = new Texture(Gdx.files.internal("sea.jpg"));
         sprite = new Sprite(spriteTexture);
@@ -33,7 +36,7 @@ public class GameScreen implements Screen {
     @Override
     public void render(float delta) {
         scrollTimer += Gdx.graphics.getDeltaTime()*0.15;
-        if(scrollTimer>1.0f)
+        if(scrollTimer > 10.0f)
             game.setScreen(game.gameCredits);
 
         sprite.setU(scrollTimer);
@@ -51,12 +54,13 @@ public class GameScreen implements Screen {
 
     @Override
     public void show() {
-
+        game_music.play();
+        game_music.setLooping(true);
     }
 
     @Override
     public void hide() {
-
+        game_music.stop();
     }
 
     @Override
@@ -71,6 +75,6 @@ public class GameScreen implements Screen {
 
     @Override
     public void dispose() {
-
+        game_music.dispose();
     }
 }
