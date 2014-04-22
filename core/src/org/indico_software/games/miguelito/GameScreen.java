@@ -78,13 +78,12 @@ public class GameScreen implements Screen {
 
         batch.begin();
         bgSprite.draw(batch);
+        character.draw(batch, scrollTimer);
         batch.end();
 
         drawFloor();
 
         newton.update(deltaT);
-
-        character.draw(shapeRenderer);
 
         if (Gdx.input.isKeyPressed(Input.Keys.SPACE) && character.getPosition().y == 0) {
             character.accelerate(new Vector2(0, 100f));
