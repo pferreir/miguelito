@@ -5,8 +5,10 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
@@ -24,6 +26,7 @@ import java.util.Iterator;
 public class GameScreen implements Screen {
 
     private final OrthographicCamera camera;
+    private final BitmapFont font;
     MiguelitoSingapore game;
     Music gameMusic;
     SpriteBatch batch;
@@ -31,9 +34,9 @@ public class GameScreen implements Screen {
     Texture spriteTexture;
     Newton newton;
     Character character;
-    Texture hazardImage;
-    Array<Rectangle> hazards;
+    Array<Hazard> hazards;
 
+    final boolean SHOW_BOUNDING_BOXES = false;
 
     float scrollTimer = 0.0f;
     float scale = 1.0f;
@@ -41,103 +44,135 @@ public class GameScreen implements Screen {
 
     protected final float width = Gdx.graphics.getWidth();
     protected final float height = Gdx.graphics.getHeight();
-    private final float floorLevel = height / 3;
+    private final float floorLevel = 20;
     private ShapeRenderer shapeRenderer;
+    private boolean alive;
+
+    private float redStart;
 
     public GameScreen(MiguelitoSingapore game) {
         this.game = game;
+        this.alive = true;
+
+        redStart = 0;
 
         character = new Character(new Vector2(50.0f, 100f), floorLevel);
-        newton = new Newton(character);
+        newton = new Newton(character, floorLevel);
 
         batch = new SpriteBatch();
         gameMusic = Gdx.audio.newMusic(Gdx.files.internal("mp3/miguelito-ingame.mp3"));
 
+        font = new BitmapFont(Gdx.files.internal("fonts/8bitwonder-white.fnt"),
+                Gdx.files.internal("fonts/8bitwonder-white.png"), false);
+
         shapeRenderer = new ShapeRenderer();
-        hazardImage = new Texture(Gdx.files.internal("bridge-stone.png"));
-        spriteTexture = new Texture(Gdx.files.internal("sea.jpg"));
+        spriteTexture = new Texture(Gdx.files.internal("gnv_skyline.png"));
         bgSprite = new Sprite(spriteTexture);
         bgSprite.setScale(scale);
 
         camera = new OrthographicCamera(width, height);
 
-        hazards = new Array<Rectangle>();
+        hazards = new Array<Hazard>();
     }
 
-    protected void drawFloor() {
-        shapeRenderer.setProjectionMatrix(camera.combined);
-
-        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
-        shapeRenderer.setColor(Color.RED);
-        shapeRenderer.rect(0, floorLevel - 20, width, 20);
-        shapeRenderer.end();
+    protected void drawFloor(ShapeRenderer sr) {
+        sr.begin(ShapeRenderer.ShapeType.Filled);
+        sr.setColor(Color.DARK_GRAY);
+        sr.rect(0, floorLevel - 10, width, 10);
+        sr.end();
     }
 
     private void spawnHazard() {
-        Rectangle hazard = new Rectangle();
-        hazard.x = width;
-        hazard.y = floorLevel - 20;
-        hazard.width = 64;
-        hazard.height = 64;
+        Hazard hazard = new Hazard(new Vector2(width, floorLevel), 64, 32, floorLevel);
         hazards.add(hazard);
         lastHazardTime = TimeUtils.millis();
     }
 
     @Override
     public void render(float delta) {
+
+        Gdx.gl.glClearColor(0, 0, 0, 1);
+        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+        Gdx.gl.glEnable(GL20.GL_BLEND);
+
         float deltaT = Gdx.graphics.getDeltaTime();
 
         scrollTimer += deltaT * 0.15;
-        if(scrollTimer > 10.0f)
-            game.setScreen(game.gameCredits);
 
         camera.position.set(width / 2.0f, height / 2.0f, 0f);
         camera.update();
 
-        bgSprite.setU(scrollTimer);
-        bgSprite.setU2(scrollTimer + 1);
+        bgSprite.setU(scrollTimer / 40);
+        bgSprite.setU2(scrollTimer / 40 + 1);
 
         batch.setProjectionMatrix(camera.combined);
 
         batch.begin();
-        bgSprite.draw(batch);
+        batch.draw(bgSprite, 0, 0);
         character.draw(batch, scrollTimer);
-        for(Rectangle hazard: hazards) {
-            batch.draw(hazardImage, hazard.x, hazard.y);
+
+        for(Hazard hazard: hazards) {
+            hazard.draw(batch);
         }
+
+        if (redStart > 0) {
+            batch.setColor(Color.RED);
+            font.draw(batch, "PRESS SPACE", 20, 100);
+            font.draw(batch, "TO RESTART", 20, 60);
+        }
+
         batch.end();
 
-        drawFloor();
+        ShapeRenderer sr = new ShapeRenderer();
+        shapeRenderer.setProjectionMatrix(camera.combined);
 
+        drawFloor(sr);
+        if (SHOW_BOUNDING_BOXES) {
+            character.drawBoundingBox(sr);
+        }
+
+        for(Hazard hazard: hazards) {
+            hazard.updatePosition(deltaT);
+
+            if (SHOW_BOUNDING_BOXES) {
+                hazard.drawBoundingBox(sr);
+            }
+        }
         newton.update(deltaT);
 
         // check if we need to create a new hazard
         if(TimeUtils.millis() - lastHazardTime > 3000*MathUtils.random(1, 10)) spawnHazard();
 
         // remove any hazard that is left behind or kill if hit
-        Iterator<Rectangle> iter = hazards.iterator();
-        Rectangle characterRect = new Rectangle();
-        Vector2 pos = character.getPosition();
-        characterRect.x = pos.x - 5.0f;
-        characterRect.y = pos.y + floorLevel;
-        characterRect.width = 23;
-        characterRect.height = 60;
-        System.out.println("CH x:"+pos.x+"y:"+pos.y);
+        Iterator<Hazard> iter = hazards.iterator();
+
         while(iter.hasNext()) {
-            Rectangle hazard = iter.next();
-            hazard.x -= 50 * deltaT;
-            if(hazard.x + 64 < 0) iter.remove();
-            System.out.println("HH x:"+hazard.x+"y:"+hazard.y);
-            if(characterRect.overlaps(hazard)) {
-                // dieeeee!
-                game.setScreen(game.gameCredits);
+            Hazard hazard = iter.next();
+            Vector2 pos = hazard.getPosition();
+            hazard.setPosition(new Vector2(pos.x - 50 * deltaT, pos.y));
+            if(hazard.getPosition().x + 64 < 0) {
+                iter.remove();
+            }
+
+            if(alive && character.overlaps(hazard)) {
+                character.die();
+                gameMusic.stop();
+                fadeToRed(scrollTimer);
+                alive = false;
             }
         }
 
-
-        if (Gdx.input.isKeyPressed(Input.Keys.SPACE) && character.getPosition().y == 0) {
-            character.accelerate(new Vector2(0, 100f));
+        if (Gdx.input.isKeyPressed(Input.Keys.SPACE)) {
+            if (alive && character.getPosition().y == floorLevel) {
+                character.accelerate(new Vector2(0f, 150f));
+            } else if (!alive) {
+                game.setScreen(new SplashScreen(game));
+            }
         }
+    }
+
+    private void fadeToRed(float time) {
+        redStart = time;
     }
 
     @Override

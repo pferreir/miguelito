@@ -5,7 +5,6 @@ import com.badlogic.gdx.Game;
 public class MiguelitoSingapore extends Game {
 
     public SplashScreen splashScreen;
-    public GameScreen gameScreen;
     public GameCredits gameCredits;
 
     public MiguelitoSingapore() {
@@ -14,7 +13,6 @@ public class MiguelitoSingapore extends Game {
     @Override
 	public void create () {
         splashScreen = new SplashScreen(this);
-        gameScreen = new GameScreen(this);
         gameCredits = new GameCredits(this);
 
         this.setScreen(splashScreen);

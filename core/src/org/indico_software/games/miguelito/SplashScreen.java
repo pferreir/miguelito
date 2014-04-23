@@ -64,6 +64,7 @@ public class SplashScreen implements Screen {
     public void render(float delta) {
         Gdx.gl.glClearColor(1, 0, 0, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+        Gdx.gl.glEnable(GL20.GL_BLEND);
 
         double t = TimeUtils.timeSinceNanos(start_t);
 
@@ -82,7 +83,7 @@ public class SplashScreen implements Screen {
         batch.end();
 
         if (!keep_running) {
-            game.setScreen(game.gameScreen);
+            game.setScreen(new GameScreen(game));
         }
     }
 

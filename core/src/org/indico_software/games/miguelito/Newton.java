@@ -8,14 +8,19 @@ import com.badlogic.gdx.math.Vector2;
  */
 public class Newton {
     private final Character character;
+    private float floorLevel;
 
-    public Newton(Character character) {
+    public Newton(Character character, float floorLevel) {
         this.character = character;
+        this.floorLevel = floorLevel;
     }
 
     public void update(float deltaT) {
         this.character.updatePosition(deltaT);
-        Vector2 deltaVel = new Vector2(0, deltaT * -100);
-        this.character.accelerate(deltaVel);
+
+        if (this.character.getPosition().y > floorLevel) {
+            Vector2 deltaVel = new Vector2(0, deltaT * -100);
+            this.character.accelerate(deltaVel);
+        }
     }
 }

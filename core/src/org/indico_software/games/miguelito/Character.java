@@ -7,6 +7,7 @@ import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 
 import java.nio.channels.spi.SelectorProvider;
@@ -16,17 +17,15 @@ import java.nio.channels.spi.SelectorProvider;
  */
 public class Character extends Body {
 
-    private final float floorLevel;
+    private static final float WIDTH = 23;
+    private static final float HEIGHT = 60;
     private Texture walkSheet;
     private TextureRegion[] walkFrames;
     private Animation walkAnimation;
-    private SpriteBatch spriteBatch;
     private TextureRegion currentFrame;
 
     public Character(Vector2 position, float floorLevel) {
-        super(position);
-        this.floorLevel = floorLevel;
-
+        super(position, WIDTH, HEIGHT, floorLevel);
         this.createSprite();
     }
 
@@ -41,11 +40,14 @@ public class Character extends Body {
         }
 
         walkAnimation = new Animation(0.1f, walkFrames);
-        spriteBatch = new SpriteBatch();
     }
 
     public void draw(SpriteBatch spriteBatch, float time) {
         currentFrame = walkAnimation.getKeyFrame(time, true);
-        spriteBatch.draw(currentFrame, this.position.x - 5.0f, this.position.y + floorLevel);
+        spriteBatch.draw(currentFrame, this.position.x - WIDTH / 2, this.position.y);
+    }
+
+    public void die() {
+        this.accelerate(new Vector2(0, 300f));
     }
 }
