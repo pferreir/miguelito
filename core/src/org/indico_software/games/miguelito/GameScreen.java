@@ -165,7 +165,7 @@ public class GameScreen implements Screen {
         if (Gdx.input.isKeyPressed(Input.Keys.SPACE)) {
             if (alive && character.getPosition().y == floorLevel) {
                 character.accelerate(new Vector2(0f, 150f));
-            } else if (!alive) {
+            } else if (!alive && (scrollTimer - redStart > 0.2)) {
                 game.setScreen(new SplashScreen(game));
             }
         }
