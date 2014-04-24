@@ -124,6 +124,8 @@ public class GameScreen implements Screen {
 
         font.draw(batch, String.valueOf(counter), width/2, height- 50);
 
+
+
         batch.end();
 
         ShapeRenderer sr = new ShapeRenderer();
@@ -155,7 +157,7 @@ public class GameScreen implements Screen {
             hazard.setPosition(new Vector2(hazardPos.x - 50 * deltaT, hazardPos.y));
             if(hazardPos.x + 64 < 0) {
                 iter.remove();
-            } else if (hazardPos.x < character.getPosition().x) {
+            } else if (hazardPos.x < character.getPosition().x && redStart == 0) {
                 counter += 1;
             }
 
