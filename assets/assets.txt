@@ -1,4 +1,6 @@
 d:war/:0:application/unknown
+d:.temp:0:application/unknown
+d:.temp/45614fc1:0:application/unknown
 i:bridge-stone.png:338:image/png
 d:fonts:0:application/unknown
 t:fonts/8bitwonder-gradient.fnt:4609:application/unknown
