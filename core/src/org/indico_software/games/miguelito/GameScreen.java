@@ -35,6 +35,7 @@ public class GameScreen implements Screen {
     Newton newton;
     Character character;
     Array<Hazard> hazards;
+    long counter = 0;
 
     final boolean SHOW_BOUNDING_BOXES = false;
 
@@ -121,6 +122,10 @@ public class GameScreen implements Screen {
             font.draw(batch, "TO RESTART", 20, 60);
         }
 
+        font.draw(batch, String.valueOf(counter), width/2, height- 50);
+
+
+
         batch.end();
 
         ShapeRenderer sr = new ShapeRenderer();
@@ -148,10 +153,12 @@ public class GameScreen implements Screen {
 
         while(iter.hasNext()) {
             Hazard hazard = iter.next();
-            Vector2 pos = hazard.getPosition();
-            hazard.setPosition(new Vector2(pos.x - 50 * deltaT, pos.y));
-            if(hazard.getPosition().x + 64 < 0) {
+            Vector2 hazardPos = hazard.getPosition();
+            hazard.setPosition(new Vector2(hazardPos.x - 50 * deltaT, hazardPos.y));
+            if(hazardPos.x + 64 < 0) {
                 iter.remove();
+            } else if (hazardPos.x < character.getPosition().x && redStart == 0) {
+                counter += 1;
             }
 
             if(alive && character.overlaps(hazard)) {
