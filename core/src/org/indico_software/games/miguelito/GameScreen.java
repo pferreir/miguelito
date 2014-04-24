@@ -157,8 +157,9 @@ public class GameScreen implements Screen {
             hazard.setPosition(new Vector2(hazardPos.x - 50 * deltaT, hazardPos.y));
             if(hazardPos.x + 64 < 0) {
                 iter.remove();
-            } else if (hazardPos.x < character.getPosition().x && redStart == 0) {
+            } else if (redStart == 0 && !hazard.isBypassed() && hazardPos.x+(hazard.getWidth()/2) < character.getPosition().x) {
                 counter += 1;
+                hazard.setBypassed(true);
             }
 
             if(alive && character.overlaps(hazard)) {

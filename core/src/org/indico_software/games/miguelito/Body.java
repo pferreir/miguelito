@@ -37,6 +37,10 @@ public class Body {
         boundingBox.height = height;
     }
 
+    public float getWidth() {
+        return width;
+    }
+
     public void setPosition(Vector2 position) {
         this.position = position;
     }
